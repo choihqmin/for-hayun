@@ -84,24 +84,26 @@ button {
   top: max(14px, env(safe-area-inset-top));
   left: max(14px, env(safe-area-inset-left));
   z-index: 30;
+
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+
+  width: 64px;
+  height: 64px;
   padding: 0;
-  border: 2px solid rgba(255, 154, 210, 0.9);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  color: #111111;
-  font-size: 23px;
+
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
 }
 
 .help-button img {
   display: block;
-  width: 30px;
-  height: 30px;
+  width: 58px;
+  height: 58px;
   object-fit: contain;
 }
 
@@ -210,33 +212,29 @@ button {
 }
 
 .help-card h2 {
-  margin: 0 0 28px;
-  color: #e56da8;
-  font-size: clamp(27px, 4vw, 36px);
-  font-weight: 700;
+  margin: 0 0 26px;
+  color: #111111;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 300;
   text-align: center;
 }
 
 .help-script {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
+  text-align: center;
 }
 
 .help-script p {
   margin: 0;
-  color: #222222;
+  color: #111111;
   font-size: 17px;
-  line-height: 1.7;
-  text-align: left;
+  font-weight: 300;
+  line-height: 1.8;
+  text-align: center;
 }
 
-.help-love-message {
-  padding-top: 6px;
-  color: #e56da8 !important;
-  font-weight: 700;
-  text-align: center !important;
-}
 
 .help-close-button {
   position: absolute;
@@ -283,9 +281,9 @@ button {
   padding: 12px 22px;
   border: 0;
   border-radius: 10px;
-  background: linear-gradient(135deg, #ef78ae, #dd4f91);
+  background: #4a4a4a;
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -416,6 +414,16 @@ button {
 }
 
 @media (max-width: 700px) {
+  .help-button {
+    width: 58px;
+    height: 58px;
+  }
+
+  .help-button img {
+    width: 52px;
+    height: 52px;
+  }
+
   .camera-container {
     width: 88vw;
     aspect-ratio: 4 / 3;

@@ -246,54 +246,93 @@ function createSequenceCombo({
   maxTotalMs,
   onComplete,
 }) {
-  let inputHistory = [];
+  let nextIndex = 0;
+  let startedAt = null;
 
   function reset() {
-    inputHistory = [];
+    nextIndex = 0;
+    startedAt = null;
   }
 
-  function add(value, timestamp = performance.now()) {
-    inputHistory.push({
-      value,
-      timestamp,
-    });
+  function start(timestamp) {
+    nextIndex = 1;
+    startedAt = timestamp;
+  }
 
-    if (inputHistory.length > sequence.length) {
-      inputHistory = inputHistory.slice(-sequence.length);
-    }
+  function add(
+    value,
+    timestamp = performance.now(),
+  ) {
+    const firstValue = sequence[0];
 
-    const values = inputHistory.map((entry) => entry.value);
-    const sequenceMatches = sequence.every(
-      (expected, index) => values[index] === expected,
-    );
-
-    if (!sequenceMatches) {
-      const firstIndex = sequence.indexOf(value);
-
-      inputHistory =
-        firstIndex === 0
-          ? [{ value, timestamp }]
-          : [];
+    /*
+     * 아직 LOVE 입력이 시작되지 않았다면
+     * 첫 글자인 l만 시작으로 인정한다.
+     */
+    if (nextIndex === 0) {
+      if (value === firstValue) {
+        start(timestamp);
+      }
 
       return false;
     }
 
-    const elapsed =
-      inputHistory[inputHistory.length - 1].timestamp -
-      inputHistory[0].timestamp;
+    /*
+     * l을 접은 뒤 0.8초가 넘었으면
+     * 기존 입력을 취소한다.
+     */
+    if (
+      startedAt === null ||
+      timestamp - startedAt > maxTotalMs
+    ) {
+      reset();
 
-    if (elapsed > maxTotalMs) {
-      inputHistory =
-        value === sequence[0]
-          ? [{ value, timestamp }]
-          : [];
+      /*
+       * 시간 초과 순간 들어온 글자가 l이라면
+       * 그 l부터 새롭게 시작한다.
+       */
+      if (value === firstValue) {
+        start(timestamp);
+      }
 
       return false;
     }
 
-    onComplete();
-    reset();
-    return true;
+    /*
+     * 지금 기다리고 있는 글자와
+     * 다른 글자가 들어오면 초기화한다.
+     */
+    if (value !== sequence[nextIndex]) {
+      reset();
+
+      /*
+       * 틀린 입력이 l이라면
+       * 새로운 LOVE 입력으로 바로 시작한다.
+       */
+      if (value === firstValue) {
+        start(timestamp);
+      }
+
+      return false;
+    }
+
+    /*
+     * 올바른 다음 글자가 들어왔으므로
+     * 다음 순서로 이동한다.
+     */
+    nextIndex += 1;
+
+    /*
+     * l → o → v → e를 전부 완료했다.
+     */
+    if (nextIndex === sequence.length) {
+      onComplete();
+      reset();
+
+      return true;
+    }
+
+    return false;
   }
 
   return {
