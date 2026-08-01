@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>For Hayun</title>
+
+    <script type="module" crossorigin src="/for-hayun/assets/index-DcgEX6ur.js"></script>
+    <link rel="stylesheet" crossorigin href="/for-hayun/assets/index-SDBKi0f7.css">
+  </head>
+
+  <body>
+    <main id="app">
+      <section class="controls">
+        <p id="status">손 인식 모델을 준비하는 중...</p>
+
+        <button id="startButton" type="button" disabled>
+          카메라 시작
+        </button>
+      </section>
+
+      <div
+        id="cameraContainer"
+        class="camera-container"
+      >
+        <video
+          id="webcam"
+          autoplay
+          muted
+          playsinline
+        ></video>
+
+        <canvas id="outputCanvas"></canvas>
+      </div>
+
+      <p id="guide" class="guide">
+        두 손을 펼친 뒤 손가락을 하나씩 접어 보세요.
+      </p>
+
+      <section
+        id="ending"
+        class="ending"
+        aria-hidden="true"
+      >
+        <p class="ending-message">
+          ♡ from your hamin ◜ᴗ◝ .
+        </p>
+      </section>
+    </main>
+
+  </body>
+</html>

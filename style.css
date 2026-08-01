@@ -1,0 +1,424 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+
+  background-image: var(--background-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  color: #ffffff;
+
+  font-family:
+    "Helvetica Neue",
+    -apple-system,
+    BlinkMacSystemFont,
+    Arial,
+    sans-serif;
+}
+
+button {
+  font: inherit;
+}
+
+#app {
+  position: relative;
+
+  width: 100vw;
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+/* 상단 상태 문구와 카메라 버튼 */
+
+.controls {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  transform: translateX(-50%);
+
+  transition: opacity 0.8s ease;
+}
+
+.controls.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#status {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 300;
+  text-align: center;
+
+  text-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.45);
+}
+
+#startButton {
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.95);
+  color: #ff73b8;
+
+  font-size: 15px;
+  font-weight: 300;
+
+  cursor: pointer;
+}
+
+#startButton:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* 중앙 카메라 구멍 */
+
+.camera-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: min(72vw, 920px);
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background: #000000;
+
+  transform: translate(-50%, -50%);
+
+  transition:
+    opacity 1.5s ease,
+    visibility 1.5s ease;
+}
+
+.camera-container.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+#webcam,
+#outputCanvas {
+  position: absolute;
+  inset: 0;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transform: scaleX(-1);
+}
+
+#outputCanvas {
+  pointer-events: none;
+}
+
+/* 하단 안내 문구 */
+
+.guide {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 10;
+
+  width: min(90vw, 650px);
+  margin: 0;
+
+  transform: translateX(-50%);
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 300;
+  text-align: center;
+
+  text-shadow:
+    0 1px 5px rgba(0, 0, 0, 0.4);
+
+  transition: opacity 0.8s ease;
+}
+
+.guide.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 엔딩 화면 */
+
+.ending {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+
+  visibility: hidden;
+  opacity: 0;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  transition:
+    opacity 1.8s ease,
+    visibility 1.8s ease;
+}
+
+.ending.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+/*
+ * 엔딩 문구:
+ * 1. 중앙에서 작게 등장
+ * 2. 3초 동안 커짐
+ * 3. 커진 크기를 유지한 채 유영
+ */
+
+.ending-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family:
+    "Helvetica Neue",
+    -apple-system,
+    BlinkMacSystemFont,
+    Arial,
+    sans-serif;
+
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 200;
+
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4);
+
+  transform:
+    translate(-50%, -50%)
+    scale(1);
+
+  transform-origin: center;
+
+  animation:
+    endingGrow 3s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    endingFloat 24s ease-in-out 3s infinite;
+}
+
+/* 처음 3초 동안만 확대 */
+
+@keyframes endingGrow {
+  0% {
+    opacity: 0;
+
+    font-size: clamp(20px, 2vw, 26px);
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.92);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  55% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.12);
+  }
+
+  100% {
+    opacity: 1;
+
+    font-size: clamp(44px, 5vw, 76px);
+
+    transform:
+      translate(-50%, -50%)
+      scale(1);
+  }
+}
+
+/*
+ * 확대가 끝난 뒤 유영.
+ * 구간 간격을 불규칙하게 두어
+ * 일정한 원운동처럼 보이지 않게 한다.
+ */
+
+@keyframes endingFloat {
+  0% {
+    top: 50%;
+    left: 50%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-0.8deg);
+  }
+
+  11% {
+    top: 45%;
+    left: 57%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0.2deg);
+  }
+
+  24% {
+    top: 38%;
+    left: 66%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0.9deg);
+  }
+
+  34% {
+    top: 48%;
+    left: 72%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0.3deg);
+  }
+
+  49% {
+    top: 62%;
+    left: 63%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-0.8deg);
+  }
+
+  61% {
+    top: 67%;
+    left: 46%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0.4deg);
+  }
+
+  72% {
+    top: 59%;
+    left: 33%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0.9deg);
+  }
+
+  84% {
+    top: 39%;
+    left: 29%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-0.5deg);
+  }
+
+  93% {
+    top: 43%;
+    left: 40%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-0.9deg);
+  }
+
+  100% {
+    top: 50%;
+    left: 50%;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-0.8deg);
+  }
+}
+
+/* 작은 화면 대응 */
+
+@media (max-width: 700px) {
+  .camera-container {
+    width: 88vw;
+    aspect-ratio: 4 / 3;
+  }
+
+  .controls {
+    top: 16px;
+  }
+
+  .guide {
+    bottom: 16px;
+  }
+
+  .ending-message {
+    font-size: 18px;
+  }
+
+  @keyframes endingGrow {
+    0% {
+      opacity: 0;
+
+      font-size: 18px;
+
+      transform:
+        translate(-50%, -50%)
+        scale(0.92);
+    }
+
+    18% {
+      opacity: 1;
+    }
+
+    55% {
+      transform:
+        translate(-50%, -50%)
+        scale(1.08);
+    }
+
+    100% {
+      opacity: 1;
+
+      font-size: clamp(28px, 7vw, 44px);
+
+      transform:
+        translate(-50%, -50%)
+        scale(1);
+    }
+  }
+}
