@@ -1388,25 +1388,31 @@ function checkEnding(
   leftFoldedStates,
   rightFoldedStates,
 ) {
-  const allTenFolded = [
-    ...leftFoldedStates,
-    ...rightFoldedStates,
-  ].every(Boolean);
-
-  if (
-    !allTenFolded ||
-    !hasExperiencedAllWords()
-  ) {
-    appState.allFoldedStartedAt =
-      null;
-
+  if (!hasExperiencedAllWords()) {
+    appState.allFoldedStartedAt = null;
     return;
   }
 
-  if (
-    appState.allFoldedStartedAt ===
-    null
-  ) {
+  const leftFoldedCount =
+    leftFoldedStates.filter(Boolean).length;
+
+  const rightFoldedCount =
+    rightFoldedStates.filter(Boolean).length;
+
+  /*
+   * 엄지 인식이 흔들려도 주먹으로 인정한다.
+   * 양손 각각 손가락 4개 이상이 접히면 엔딩 준비.
+   */
+  const bothHandsClosed =
+    leftFoldedCount >= 4 &&
+    rightFoldedCount >= 4;
+
+  if (!bothHandsClosed) {
+    appState.allFoldedStartedAt = null;
+    return;
+  }
+
+  if (appState.allFoldedStartedAt === null) {
     appState.allFoldedStartedAt =
       performance.now();
 
@@ -1420,13 +1426,11 @@ function checkEnding(
     performance.now() -
     appState.allFoldedStartedAt;
 
-  if (
-    heldMs >=
-    CONFIG.endingHoldMs
-  ) {
+  if (heldMs >= 800) {
     startEnding();
   }
 }
+
 
 function startEnding() {
   if (appState.endingStarted) {
@@ -1436,10 +1440,7 @@ function startEnding() {
   appState.endingStarted = true;
   appState.webcamRunning = false;
 
-  if (
-    appState.animationFrameId !==
-    null
-  ) {
+  if (appState.animationFrameId !== null) {
     cancelAnimationFrame(
       appState.animationFrameId,
     );
@@ -1451,17 +1452,19 @@ function startEnding() {
 
   loveCombo.reset();
 
-  elements.status.textContent =
-    "";
+  elements.status.textContent = "";
 
-  elements.cameraContainer
-    .classList.add("is-hidden");
+  elements.cameraContainer.classList.add(
+    "is-hidden",
+  );
 
-  elements.controls
-    .classList.add("is-hidden");
+  elements.controls.classList.add(
+    "is-hidden",
+  );
 
-  elements.guide
-    .classList.add("is-hidden");
+  elements.guide.classList.add(
+    "is-hidden",
+  );
 
   elements.helpButton.style.display =
     "none";
@@ -1484,14 +1487,9 @@ function startEnding() {
   const stream =
     elements.video.srcObject;
 
-  if (
-    stream instanceof MediaStream
-  ) {
+  if (stream instanceof MediaStream) {
     window.setTimeout(() => {
-      for (
-        const track of
-        stream.getTracks()
-      ) {
+      for (const track of stream.getTracks()) {
         track.stop();
       }
     }, 2200);
